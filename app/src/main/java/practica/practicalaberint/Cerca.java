@@ -58,7 +58,7 @@ public class Cerca
         Cami camiTrobat = new Cami(files*columnes);
         laberint.setNodes(0);
 
-        // Implementa l'algorisme aquí
+        // Implementa l'algorisme aquí hola
         
         return camiTrobat;
     }
