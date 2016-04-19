@@ -58,7 +58,26 @@ public class Cerca
         Cami camiTrobat = new Cami(files*columnes);
         laberint.setNodes(0);
 
+        Punt actual = new Punt();
+        Object nodo = new Object();
+        Coa colaAbierta = new Coa(); //Lista usada para ver los nodos por visitar
+        Coa colaCerrada = new Coa(); //Lista usada para ver los nodos visitados
+
+        if(!origen.equals(desti)) {
+            colaAbierta.afegeix(origen); //Primer punto a visitar
+        }
+        while (!colaAbierta.buida())  {
+            actual = (Punt) colaAbierta.treu();
+            if(actual.equals(origen)){
+                System.out.println("Hola");
+            }
+            //laberint.pucAnar(origen.x,nodo.y,laberint.DRETA);
+
+        }
+
+
         // Implementa l'algorisme aquí hola
+
         
         return camiTrobat;
     }
