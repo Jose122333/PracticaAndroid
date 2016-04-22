@@ -58,7 +58,7 @@ public class Cerca
         Cami camiTrobat = new Cami(files*columnes);
         laberint.setNodes(0);
 
-        Punt actual;
+        Punt actual = new Punt();
         Punt operadorDetra;
         Punt operadorEsquerra;
         Punt operadorAmunt;
@@ -82,10 +82,10 @@ public class Cerca
                     System.out.println("Meta encontrada");
                 } else { //Si no es el estado meta, aplicar operadores(DRETA,ESQUERRA,AMUNT, AVALL) en ese orden
                     //Generar sucesores de actual
-                    operadorDetra = new Punt(actual.x,actual.y+1); //Si vas a la derecha te has avanzado una columna
-                    operadorEsquerra = new Punt(actual.x,actual.y-1); //Si vas hacía la izquierda has retrocedido una columna
-                    operadorAmunt = new Punt(actual.x-1,actual.y); //Si vas hacía arriba has retrocedido una fila
-                    operadorAvall = new Punt(actual.x+1,actual.y); //Si vas hacía abajo has avanzado una fila
+                    operadorDetra = new Punt(actual.x,actual.y+1,actual,0); //Si vas a la derecha te has avanzado una columna
+                    operadorEsquerra = new Punt(actual.x,actual.y-1, actual,0); //Si vas hacía la izquierda has retrocedido una columna
+                    operadorAmunt = new Punt(actual.x-1,actual.y,actual, 0); //Si vas hacía arriba has retrocedido una fila
+                    operadorAvall = new Punt(actual.x+1,actual.y, actual,0); //Si vas hacía abajo has avanzado una fila
                     colaCerrada.afegeix(actual);
 
                     //Se puede añadir a la lista abierta,si no hay pared y no es un estado repetido (esté en colaAbierta o colaCerrada)
@@ -106,15 +106,13 @@ public class Cerca
                         colaAbierta.afegeix(operadorAvall);
                     }
                 }
-
-
-
         }
 
-
-        // Implementa l'algorisme aquí hola
-
-        
+        //Buscar el camino más corto una vez hemos encontrado la meta(Backtracking hasta el origen)
+        while (!origen.equals(actual)){
+            camiTrobat.afegeix(actual);
+            actual = actual.previ;
+        }
         return camiTrobat;
     }
 
