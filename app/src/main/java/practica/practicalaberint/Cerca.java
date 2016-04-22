@@ -58,20 +58,56 @@ public class Cerca
         Cami camiTrobat = new Cami(files*columnes);
         laberint.setNodes(0);
 
-        Punt actual = new Punt();
-        Object nodo = new Object();
+        Punt actual;
+        Punt operadorDetra;
+        Punt operadorEsquerra;
+        Punt operadorAmunt;
+        Punt operadorAvall;
+
         Coa colaAbierta = new Coa(); //Lista usada para ver los nodos por visitar
         Coa colaCerrada = new Coa(); //Lista usada para ver los nodos visitados
+        Boolean found = false; //Usado para evaluar la meta
 
         if(!origen.equals(desti)) {
             colaAbierta.afegeix(origen); //Primer punto a visitar
+        } else {
+            found = true;
         }
-        while (!colaAbierta.buida())  {
-            actual = (Punt) colaAbierta.treu();
-            if(actual.equals(origen)){
-                System.out.println("Hola");
-            }
-            //laberint.pucAnar(origen.x,nodo.y,laberint.DRETA);
+        while (!colaAbierta.buida() && !found)  {
+                actual = (Punt) colaAbierta.treu();
+                laberint.incNodes();
+                //Comprobar si es el estado meta
+                if(desti.equals(actual)){
+                    found = true;
+                    System.out.println("Meta encontrada");
+                } else { //Si no es el estado meta, aplicar operadores(DRETA,ESQUERRA,AMUNT, AVALL) en ese orden
+                    //Generar sucesores de actual
+                    operadorDetra = new Punt(actual.x,actual.y+1); //Si vas a la derecha te has avanzado una columna
+                    operadorEsquerra = new Punt(actual.x,actual.y-1); //Si vas hacía la izquierda has retrocedido una columna
+                    operadorAmunt = new Punt(actual.x-1,actual.y); //Si vas hacía arriba has retrocedido una fila
+                    operadorAvall = new Punt(actual.x+1,actual.y); //Si vas hacía abajo has avanzado una fila
+                    colaCerrada.afegeix(actual);
+
+                    //Se puede añadir a la lista abierta,si no hay pared y no es un estado repetido (esté en colaAbierta o colaCerrada)
+                    if (laberint.pucAnar(actual.x,actual.y, laberint.DRETA) &&
+                            (!buscaPunto(operadorDetra,colaAbierta) || !buscaPunto(operadorDetra,colaCerrada))){
+                        colaAbierta.afegeix(operadorDetra);
+                    }
+                    if (laberint.pucAnar(actual.x,actual.y, laberint.ESQUERRA)&&
+                            (!buscaPunto(operadorEsquerra,colaAbierta) || !buscaPunto(operadorEsquerra,colaCerrada))){
+                        colaAbierta.afegeix(operadorEsquerra);
+                    }
+                    if (laberint.pucAnar(actual.x,actual.y,laberint.AMUNT)&&
+                            (!buscaPunto(operadorAmunt,colaAbierta) || !buscaPunto(operadorAmunt,colaCerrada))){
+                        colaAbierta.afegeix(operadorAmunt);
+                    }
+                    if (laberint.pucAnar(actual.x,actual.y,laberint.AVALL)&&
+                            (!buscaPunto(operadorAvall,colaAbierta) || !buscaPunto(operadorAvall,colaCerrada))){
+                        colaAbierta.afegeix(operadorAvall);
+                    }
+                }
+
+
 
         }
 
@@ -112,5 +148,19 @@ public class Cerca
         // Implementa l'algorisme aquí
 
         return camiTrobat;
+    }
+
+    //Función usada para buscar si un punto está en una cola
+    private Boolean buscaPunto (Punt buscas,Coa q){
+        Punt sacado;
+        Boolean found = false;
+        while (!q.buida() && !found){
+            if(q.consulta().equals(buscas)){
+                found = true;
+            } else {
+                sacado = (Punt) q.treu();
+            }
+        }
+        return found;
     }
 }
