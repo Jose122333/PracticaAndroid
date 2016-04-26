@@ -46,6 +46,7 @@ public class Cerca
     Laberint laberint;      // laberint on es cerca
     int files, columnes;    // files i columnes del laberint
 
+
     public Cerca(Laberint l)
     {
         files = l.nFiles;
@@ -63,10 +64,13 @@ public class Cerca
         Punt operadorEsquerra;
         Punt operadorAmunt;
         Punt operadorAvall;
+        ArrayList <Punt> repetidos= new ArrayList<Punt>();
 
-        Coa colaAbierta = new Coa(); //Lista usada para ver los nodos por visitar
-        Coa colaCerrada = new Coa(); //Lista usada para ver los nodos visitados
+
+        Coa2 colaAbierta = new Coa2(); //Lista usada para ver los nodos por visitar
+        Coa2 colaCerrada = new Coa2(); //Lista usada para ver los nodos visitados
         Boolean found = false; //Usado para evaluar la meta
+
 
         if(!origen.equals(desti)) {
             colaAbierta.afegeix(origen); //Primer punto a visitar
@@ -89,30 +93,29 @@ public class Cerca
                     colaCerrada.afegeix(actual);
 
                     //Se puede añadir a la lista abierta,si no hay pared y no es un estado repetido (esté en colaAbierta o colaCerrada)
-                    if (laberint.pucAnar(actual.x,actual.y, laberint.DRETA) &&
-                            (!buscaPunto(operadorDetra,colaAbierta) || !buscaPunto(operadorDetra,colaCerrada))){
+                    if (laberint.pucAnar(actual.x,actual.y, laberint.DRETA)&&(!colaCerrada.cerca(operadorDetra)) ){
                         colaAbierta.afegeix(operadorDetra);
                     }
-                    if (laberint.pucAnar(actual.x,actual.y, laberint.ESQUERRA)&&
-                            (!buscaPunto(operadorEsquerra,colaAbierta) || !buscaPunto(operadorEsquerra,colaCerrada))){
+                    if (laberint.pucAnar(actual.x,actual.y, laberint.ESQUERRA)&&(!colaCerrada.cerca(operadorEsquerra))){
                         colaAbierta.afegeix(operadorEsquerra);
                     }
-                    if (laberint.pucAnar(actual.x,actual.y,laberint.AMUNT)&&
-                            (!buscaPunto(operadorAmunt,colaAbierta) || !buscaPunto(operadorAmunt,colaCerrada))){
+                    if (laberint.pucAnar(actual.x,actual.y,laberint.AMUNT)&&(!colaCerrada.cerca(operadorAmunt))){
                         colaAbierta.afegeix(operadorAmunt);
                     }
-                    if (laberint.pucAnar(actual.x,actual.y,laberint.AVALL)&&
-                            (!buscaPunto(operadorAvall,colaAbierta) || !buscaPunto(operadorAvall,colaCerrada))){
+                    if (laberint.pucAnar(actual.x,actual.y,laberint.AVALL)&&(!colaCerrada.cerca(operadorAvall))){
                         colaAbierta.afegeix(operadorAvall);
                     }
                 }
         }
 
+
         //Buscar el camino más corto una vez hemos encontrado la meta(Backtracking hasta el origen)
+        int i =1;
         while (!origen.equals(actual)){
             camiTrobat.afegeix(actual);
             actual = actual.previ;
         }
+        camiTrobat.afegeix(actual);
         return camiTrobat;
     }
 
@@ -148,17 +151,25 @@ public class Cerca
         return camiTrobat;
     }
 
-    //Función usada para buscar si un punto está en una cola
-    private Boolean buscaPunto (Punt buscas,Coa q){
-        Punt sacado;
-        Boolean found = false;
-        while (!q.buida() && !found){
-            if(q.consulta().equals(buscas)){
-                found = true;
-            } else {
-                sacado = (Punt) q.treu();
+
+
+
+    //Clase coa extends
+    class Coa2 extends Coa
+    {
+        public boolean cerca(Punt p)
+        {
+            boolean found = false;
+            Node a;
+            a = primer;
+            while(a != null && !found){
+                if(p.equals(a.element)){
+                    found = true;
+                } else {
+                    a = a.següent;
+                }
             }
+            return  found;
         }
-        return found;
     }
 }
