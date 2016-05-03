@@ -205,7 +205,6 @@ public class Cerca
         laberint.setNodes(0);
 
         ArrayList<Punt2> listaAbierta = new ArrayList<>();
-        int index = 0;
 
 
         Punt2 actual = new Punt2(origen,calcularHeuristica(tipus,origen,desti));
@@ -225,17 +224,15 @@ public class Cerca
         Boolean found = false; //Usado para evaluar la meta
 
         if(!origen.equals(desti)) {
-            listaAbierta.add(index,actual);
-            index = index + 1;
+            listaAbierta.add(actual);
 
         } else {
             camiTrobat.afegeix(actual);
             return camiTrobat;
         }
         while (!listaAbierta.isEmpty() && !found)  {
-            index = index - 1;
-            actual = listaAbierta.get(index);
-            listaAbierta.remove(index);
+            actual = listaAbierta.get(0);
+            listaAbierta.remove(0);
 
             laberint.incNodes();
             //Comprobar si es el estado meta
@@ -260,25 +257,18 @@ public class Cerca
 
                 //Se puede añadir a la lista abierta,si no hay pared y no es un estado repetido (esté en colaAbierta o colaCerrada)
                 if (laberint.pucAnar(actual.x,actual.y, laberint.DRETA)&&(!colaCerrada.cerca(operadorDetra)) ){
-                    listaAbierta.add(index,operadorDetra);
-                    index = index + 1;
+                    listaAbierta.add(operadorDetra);
                 }
-                if (laberint.pucAnar(actual.x,actual.y, laberint.ESQUERRA)&&(!colaCerrada.cerca(operadorEsquerra))){
-                    listaAbierta.add(index,operadorEsquerra);
-                    index = index + 1;                }
+                if (laberint.pucAnar(actual.x,actual.y, laberint.ESQUERRA)&&(!colaCerrada.cerca(operadorEsquerra))                ){
+                    listaAbierta.add(operadorEsquerra);
+                }
                 if (laberint.pucAnar(actual.x,actual.y,laberint.AMUNT)&&(!colaCerrada.cerca(operadorAmunt))){
-                    listaAbierta.add(index,operadorAmunt);
-                    index = index + 1;                }
+                    listaAbierta.add(operadorAmunt);
+                }
                 if (laberint.pucAnar(actual.x,actual.y,laberint.AVALL)&&(!colaCerrada.cerca(operadorAvall))){
-                    listaAbierta.add(index,operadorAvall);
-                    index = index + 1;                }
-                System.out.println("El primer  valor de H  antes de ordenar es: "+String.valueOf(listaAbierta.get(0).heuristica));
-                System.out.println("El segundo  valor de H  antes de ordenar es: "+String.valueOf(listaAbierta.get(1).heuristica));
-
-                Collections.sort(listaAbierta);
-                System.out.println("El primer valor de H después de ordenar es: "+String.valueOf(listaAbierta.get(0).heuristica));
-                System.out.println("El segundo valor de H después de ordenar es: "+String.valueOf(listaAbierta.get(1).heuristica));
-
+                    listaAbierta.add(operadorAvall);
+                }
+                ordenarLista(listaAbierta);
             }
         }
 
@@ -310,6 +300,21 @@ public class Cerca
                 return Math.sqrt(Math.pow(actual.x-actual.y,2)+ Math.pow(destino.x-destino.y,2));
         }
         return 0;
+    }
+
+    //Ordena el arraylist
+    private void ordenarLista(ArrayList<Punt2> lista){
+        int i, j;
+        Punt2 aux;
+        for(i=0;i<lista.size()-1;i++)
+            for(j=0;j<lista.size()-i-1;j++)
+                if(lista.get(j+1).heuristica<lista.get(j).heuristica){
+                    aux=lista.get(j+1);
+                    lista.remove(j+1);
+                    lista.add(j+1,lista.get(j));
+                    lista.remove(j);
+                    lista.add(j,aux);
+                }
     }
 
     private Coa2 reorganizaCola(Coa2 prev, boolean DretaValida, boolean EsquerraValida,boolean AmuntValida,boolean AvallValida, Punt dreta , Punt esquerra, Punt amunt, Punt avall ){
@@ -371,5 +376,6 @@ public class Cerca
             this.previ = p.previ;
             this.heuristica = val;
         }
+
     }
 }
