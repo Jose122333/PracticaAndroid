@@ -203,10 +203,13 @@ public class Cerca
         int i;
         Cami camiTrobat = new Cami(files*columnes);
         laberint.setNodes(0);
+
         ArrayList<Punt2> listaAbierta = new ArrayList<>();
+        int index = 0;
 
 
         Punt2 actual = new Punt2(origen,calcularHeuristica(tipus,origen,desti));
+        System.out.println("El valor de H es: "+String.valueOf(actual.heuristica));
         Punt preoperadorDetra;
         Punt preoperadorEsquerra;
         Punt preoperadorAmunt;
@@ -222,13 +225,18 @@ public class Cerca
         Boolean found = false; //Usado para evaluar la meta
 
         if(!origen.equals(desti)) {
-            colaAbierta.afegeix(actual); //Primer punto a visitar
+            listaAbierta.add(index,actual);
+            index = index + 1;
+
         } else {
             camiTrobat.afegeix(actual);
             return camiTrobat;
         }
-        while (!colaAbierta.buida() && !found)  {
-            actual = (Punt2) colaAbierta.treu();
+        while (!listaAbierta.isEmpty() && !found)  {
+            index = index - 1;
+            actual = listaAbierta.get(index);
+            listaAbierta.remove(index);
+
             laberint.incNodes();
             //Comprobar si es el estado meta
             if(desti.equals(actual)){
@@ -252,30 +260,34 @@ public class Cerca
 
                 //Se puede añadir a la lista abierta,si no hay pared y no es un estado repetido (esté en colaAbierta o colaCerrada)
                 if (laberint.pucAnar(actual.x,actual.y, laberint.DRETA)&&(!colaCerrada.cerca(operadorDetra)) ){
-                    colaAbierta.afegeix(operadorDetra);
+                    listaAbierta.add(index,operadorDetra);
+                    index = index + 1;
                 }
                 if (laberint.pucAnar(actual.x,actual.y, laberint.ESQUERRA)&&(!colaCerrada.cerca(operadorEsquerra))){
-                    colaAbierta.afegeix(operadorEsquerra);
-                }
+                    listaAbierta.add(index,operadorEsquerra);
+                    index = index + 1;                }
                 if (laberint.pucAnar(actual.x,actual.y,laberint.AMUNT)&&(!colaCerrada.cerca(operadorAmunt))){
-                    colaAbierta.afegeix(operadorAmunt);
-                }
+                    listaAbierta.add(index,operadorAmunt);
+                    index = index + 1;                }
                 if (laberint.pucAnar(actual.x,actual.y,laberint.AVALL)&&(!colaCerrada.cerca(operadorAvall))){
-                    colaAbierta.afegeix(operadorAvall);
-                }
+                    listaAbierta.add(index,operadorAvall);
+                    index = index + 1;                }
+                System.out.println("El primer  valor de H  antes de ordenar es: "+String.valueOf(listaAbierta.get(0).heuristica));
+                System.out.println("El segundo  valor de H  antes de ordenar es: "+String.valueOf(listaAbierta.get(1).heuristica));
+
                 Collections.sort(listaAbierta);
+                System.out.println("El primer valor de H después de ordenar es: "+String.valueOf(listaAbierta.get(0).heuristica));
+                System.out.println("El segundo valor de H después de ordenar es: "+String.valueOf(listaAbierta.get(1).heuristica));
+
             }
         }
 
-
+        //Buscar el camino más corto una vez hemos encontrado la meta(Backtracking hasta el origen)
         while (!origen.equals(actual)){
             camiTrobat.afegeix(actual);
             actual = (Punt2) actual.previ;
         }
-
         camiTrobat.afegeix(actual);
-
-
         return camiTrobat;
     }
 
