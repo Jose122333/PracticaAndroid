@@ -287,7 +287,100 @@ public class Cerca
         Cami camiTrobat = new Cami(files*columnes);
         laberint.setNodes(0);
 
-        // Implementa l'algorisme aquí
+        ArrayList<Punt2> listaAbierta = new ArrayList<>();
+        ArrayList<Punt2> listaViajantes = new ArrayList<>();
+
+        Punt2 actual = new Punt2(origen,calcularHeuristica(EUCLIDEA,origen,desti));
+        System.out.println("El valor de H es: "+String.valueOf(actual.heuristica));
+        Punt2 aux;
+        Punt2 destiViajante;
+        Punt preoperadorDetra;
+        Punt preoperadorEsquerra;
+        Punt preoperadorAmunt;
+        Punt preoperadorAvall;
+        Punt2 operadorDetra;
+        Punt2 operadorEsquerra;
+        Punt2 operadorAmunt;
+        Punt2 operadorAvall;
+
+
+        Coa2 colaAbierta = new Coa2(); //Lista usada para ver los nodos por visitar
+        Coa2 colaCerrada = new Coa2(); //Lista usada para ver los nodos visitados
+        Boolean found = false; //Usado para evaluar la meta
+
+        if(!origen.equals(desti)) {
+            listaAbierta.add(actual);
+
+        } else {
+            camiTrobat.afegeix(actual);
+            return camiTrobat;
+        }
+        //Añadir viajantes a la lista con sus heurística
+        for(int i = 0; i < 4; i++){
+            aux = new Punt2(laberint.getObjecte(i),calcularHeuristica(EUCLIDEA,actual,laberint.getObjecte(i)));
+            listaViajantes.add(aux);
+        }
+        ordenarLista(listaViajantes);
+
+        //Cogemos el viajante más cercano
+        destiViajante = listaViajantes.get(0);
+        listaViajantes.remove(0);
+
+        //Buscar los viajantes
+        while(!listaViajantes.isEmpty()){
+            actual = listaAbierta.get(0);
+            listaAbierta.remove(0);
+
+            laberint.incNodes();
+            //Comprobar si es el estado meta
+            if(destiViajante.equals(actual)){
+                //pasamos al siguiente viajante
+                destiViajante = listaViajantes.get(0);
+                listaViajantes.remove(0);
+            }
+                //Si no es el estado meta, aplicar operadores(DRETA,ESQUERRA,AMUNT, AVALL) en ese orden
+                //Generar sucesores de actual
+                preoperadorDetra = new Punt(actual.x,actual.y+1,actual,0); //Si vas a la derecha te has avanzado una columna
+                operadorDetra = new Punt2(preoperadorDetra,calcularHeuristica(EUCLIDEA,preoperadorDetra,destiViajante)); //Crear punto con H(n)
+
+                preoperadorEsquerra = new Punt(actual.x,actual.y-1, actual,0); //Si vas hacía la izquierda has retrocedido una columna
+                operadorEsquerra = new Punt2(preoperadorEsquerra,calcularHeuristica(EUCLIDEA,preoperadorEsquerra,destiViajante)); //Crear punto con H(n)
+
+                preoperadorAmunt = new Punt(actual.x-1,actual.y,actual, 0); //Si vas hacía arriba has retrocedido una fila
+                operadorAmunt = new Punt2(preoperadorAmunt,calcularHeuristica(EUCLIDEA,preoperadorAmunt,destiViajante)); //Crear punto con H(n)
+
+                preoperadorAvall = new Punt(actual.x+1,actual.y, actual,0); //Si vas hacía abajo has avanzado una fila
+                operadorAvall = new Punt2(preoperadorAvall,calcularHeuristica(EUCLIDEA,preoperadorAvall,destiViajante)); //Crear punto con H(n)
+
+                colaCerrada.afegeix(actual);
+
+                //Se puede añadir a la lista abierta,si no hay pared y no es un estado repetido (esté en colaAbierta o colaCerrada)
+                if (laberint.pucAnar(actual.x,actual.y, laberint.DRETA)&&(!colaCerrada.cerca(operadorDetra)) ){
+                    listaAbierta.add(operadorDetra);
+                }
+                if (laberint.pucAnar(actual.x,actual.y, laberint.ESQUERRA)&&(!colaCerrada.cerca(operadorEsquerra))                ){
+                    listaAbierta.add(operadorEsquerra);
+                }
+                if (laberint.pucAnar(actual.x,actual.y,laberint.AMUNT)&&(!colaCerrada.cerca(operadorAmunt))){
+                    listaAbierta.add(operadorAmunt);
+                }
+                if (laberint.pucAnar(actual.x,actual.y,laberint.AVALL)&&(!colaCerrada.cerca(operadorAvall))){
+                    listaAbierta.add(operadorAvall);
+                }
+                ordenarLista(listaAbierta);
+        }
+
+
+
+
+        //Buscar el camino más corto una vez hemos encontrado la meta(Backtracking hasta el origen)
+        while (!origen.equals(actual)){
+            camiTrobat.afegeix(actual);
+            actual = (Punt2) actual.previ;
+        }
+        camiTrobat.afegeix(actual);
+
+
 
         return camiTrobat;
     }
@@ -377,5 +470,8 @@ public class Cerca
             this.heuristica = val;
         }
 
+        public void setHeuristica(double heuristica) {
+            this.heuristica = heuristica;
+        }
     }
 }
