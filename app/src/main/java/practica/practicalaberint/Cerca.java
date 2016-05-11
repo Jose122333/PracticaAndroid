@@ -285,11 +285,7 @@ public class Cerca
     public Cami CercaViatjant(Punt origen, Punt desti)
     {
         Cami camiTrobat = new Cami(files*columnes);
-        Cami camiViajante1 = new Cami(files*columnes);
-        Cami camiViajante2 = new Cami(files*columnes);
-        Cami camiViajante3 = new Cami(files*columnes);
-        Cami camiViajante4 = new Cami(files*columnes);
-        Cami camiSalida = new Cami(files*columnes);
+        Cami camiViajante1, camiViajante2, camiViajante3,camiViajante4, camiSalida;
 
         laberint.setNodes(0);
 
@@ -297,22 +293,9 @@ public class Cerca
         ArrayList<Punt2> listaViajantes = new ArrayList<>();
 
         Punt2 actual = new Punt2(origen,calcularHeuristica(MANHATTAN,origen,desti));
-        System.out.println("El valor de H es: "+String.valueOf(actual.heuristica));
         Punt2 aux;
         Punt destiViajante;
-        Punt preoperadorDetra;
-        Punt preoperadorEsquerra;
-        Punt preoperadorAmunt;
-        Punt preoperadorAvall;
-        Punt2 operadorDetra;
-        Punt2 operadorEsquerra;
-        Punt2 operadorAmunt;
-        Punt2 operadorAvall;
 
-
-        Coa2 colaAbierta = new Coa2(); //Lista usada para ver los nodos por visitar
-        Coa2 colaCerrada = new Coa2(); //Lista usada para ver los nodos visitados
-        Boolean found = false; //Usado para evaluar la meta
 
         if(!origen.equals(desti)) {
             listaAbierta.add(actual);
@@ -331,56 +314,52 @@ public class Cerca
         //Cogemos el viajante más cercano
         destiViajante = (Punt)listaViajantes.remove(0);
 
-        camiViajante1 = CercaEnProfunditat(origen,destiViajante);
+        camiViajante1 = CercaAmbHeurística(origen,destiViajante,MANHATTAN);
 
         origen = destiViajante;
         destiViajante = (Punt)listaViajantes.remove(0);
-        camiViajante2 = CercaEnProfunditat(origen,destiViajante);
+        camiViajante2 = CercaAmbHeurística(origen,destiViajante,MANHATTAN);
 
         origen = destiViajante;
         destiViajante = (Punt)listaViajantes.remove(0);
-        camiViajante3 = CercaEnProfunditat(origen,destiViajante);
+        camiViajante3 = CercaAmbHeurística(origen,destiViajante,MANHATTAN);
 
         origen = destiViajante;
         destiViajante = (Punt)listaViajantes.remove(0);
-        camiViajante4 = CercaEnProfunditat(origen,destiViajante);
-
+        camiViajante4 = CercaAmbHeurística(origen,destiViajante,MANHATTAN);
 
         origen = destiViajante;
-        camiViajante4 = CercaEnProfunditat(origen,desti);
+        camiSalida = CercaAmbHeurística(origen,desti,MANHATTAN);
+
 
 
         return fusionarCaminos(camiViajante1,camiViajante2,camiViajante3,camiViajante4,camiSalida);
     }
 
     private Cami fusionarCaminos (Cami c1,Cami c2, Cami c3, Cami c4, Cami salida){
-        int j = 0;
-        Cami caminoCompleto = new Cami(files*columnes);
-        //Recorremos el camino al primer bicho mas cercano
-        for( int i = c1.longitud - 1; i>0;i--){
-            caminoCompleto.cami[j]=c1.cami[i];
-            caminoCompleto.longitud = j + 1;
-        }
-        //Recorremos el camino al segundo bicho mas cercano
-        for(int i = c1.longitud - 1; i>0;i--){
-            caminoCompleto.afegeix(c2.cami[i]);
-        }
-        //Recorremos el camino al tercer bicho mas cercano
-        for(int i = 0; i<c3.longitud - 2;i++){
-            caminoCompleto.afegeix(c3.cami[j]);
-            j++;
-        }
-        //Recorremos el camino al cuarto bicho mas cercano
-        for(int i = 0; i<c4.longitud - 2;i++){
-            caminoCompleto.afegeix(c4.cami[j]);
-            j++;
-        }
+        Cami caminoCompleto = new Cami(c1.longitud+c2.longitud+c3.longitud+c4.longitud+salida.longitud);
 
         //Recorremos el camino, desde el ultimo bicho a la salida
-        for(int i = 0; i<salida.longitud - 1;i++){
-            caminoCompleto.afegeix(salida.cami[j]);
-            j++;
+        for(int i = 0; i<salida.longitud;i++){
+            caminoCompleto.afegeix(salida.cami[i]);
         }
+        //Recorremos el camino al primer bicho mas cercano
+        for(int i = 1; i<c4.longitud;i++){
+            caminoCompleto.afegeix(c4.cami[i]);
+        }
+        //Recorremos el camino al segundo bicho mas cercano
+        for(int i = 1; i<c3.longitud;i++){
+            caminoCompleto.afegeix(c3.cami[i]);
+        }
+        //Recorremos el camino al tercer bicho mas cercano
+        for(int i = 1; i<c2.longitud;i++){
+            caminoCompleto.afegeix(c2.cami[i]);
+        }
+        //Recorremos el camino al cuarto bicho mas cercano
+        for(int i = 1; i<c1.longitud ;i++){
+            caminoCompleto.afegeix(c1.cami[i]);
+        }
+
         return caminoCompleto;
     }
 
