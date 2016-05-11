@@ -285,15 +285,21 @@ public class Cerca
     public Cami CercaViatjant(Punt origen, Punt desti)
     {
         Cami camiTrobat = new Cami(files*columnes);
+        Cami camiViajante1 = new Cami(files*columnes);
+        Cami camiViajante2 = new Cami(files*columnes);
+        Cami camiViajante3 = new Cami(files*columnes);
+        Cami camiViajante4 = new Cami(files*columnes);
+        Cami camiSalida = new Cami(files*columnes);
+
         laberint.setNodes(0);
 
         ArrayList<Punt2> listaAbierta = new ArrayList<>();
         ArrayList<Punt2> listaViajantes = new ArrayList<>();
 
-        Punt2 actual = new Punt2(origen,calcularHeuristica(EUCLIDEA,origen,desti));
+        Punt2 actual = new Punt2(origen,calcularHeuristica(MANHATTAN,origen,desti));
         System.out.println("El valor de H es: "+String.valueOf(actual.heuristica));
         Punt2 aux;
-        Punt2 destiViajante;
+        Punt destiViajante;
         Punt preoperadorDetra;
         Punt preoperadorEsquerra;
         Punt preoperadorAmunt;
@@ -317,72 +323,65 @@ public class Cerca
         }
         //Añadir viajantes a la lista con sus heurística
         for(int i = 0; i < 4; i++){
-            aux = new Punt2(laberint.getObjecte(i),calcularHeuristica(EUCLIDEA,actual,laberint.getObjecte(i)));
+            aux = new Punt2(laberint.getObjecte(i),calcularHeuristica(MANHATTAN,actual,laberint.getObjecte(i)));
             listaViajantes.add(aux);
         }
         ordenarLista(listaViajantes);
 
         //Cogemos el viajante más cercano
-        destiViajante = listaViajantes.get(0);
-        listaViajantes.remove(0);
+        destiViajante = (Punt)listaViajantes.remove(0);
 
-        //Buscar los viajantes
-        while(!listaViajantes.isEmpty()){
-            actual = listaAbierta.get(0);
-            listaAbierta.remove(0);
+        camiViajante1 = CercaEnProfunditat(origen,destiViajante);
 
-            laberint.incNodes();
-            //Comprobar si es el estado meta
-            if(destiViajante.equals(actual)){
-                //pasamos al siguiente viajante
-                destiViajante = listaViajantes.get(0);
-                listaViajantes.remove(0);
-            }
-                //Si no es el estado meta, aplicar operadores(DRETA,ESQUERRA,AMUNT, AVALL) en ese orden
-                //Generar sucesores de actual
-                preoperadorDetra = new Punt(actual.x,actual.y+1,actual,0); //Si vas a la derecha te has avanzado una columna
-                operadorDetra = new Punt2(preoperadorDetra,calcularHeuristica(EUCLIDEA,preoperadorDetra,destiViajante)); //Crear punto con H(n)
+        origen = destiViajante;
+        destiViajante = (Punt)listaViajantes.remove(0);
+        camiViajante2 = CercaEnProfunditat(origen,destiViajante);
 
-                preoperadorEsquerra = new Punt(actual.x,actual.y-1, actual,0); //Si vas hacía la izquierda has retrocedido una columna
-                operadorEsquerra = new Punt2(preoperadorEsquerra,calcularHeuristica(EUCLIDEA,preoperadorEsquerra,destiViajante)); //Crear punto con H(n)
+        origen = destiViajante;
+        destiViajante = (Punt)listaViajantes.remove(0);
+        camiViajante3 = CercaEnProfunditat(origen,destiViajante);
 
-                preoperadorAmunt = new Punt(actual.x-1,actual.y,actual, 0); //Si vas hacía arriba has retrocedido una fila
-                operadorAmunt = new Punt2(preoperadorAmunt,calcularHeuristica(EUCLIDEA,preoperadorAmunt,destiViajante)); //Crear punto con H(n)
+        origen = destiViajante;
+        destiViajante = (Punt)listaViajantes.remove(0);
+        camiViajante4 = CercaEnProfunditat(origen,destiViajante);
 
-                preoperadorAvall = new Punt(actual.x+1,actual.y, actual,0); //Si vas hacía abajo has avanzado una fila
-                operadorAvall = new Punt2(preoperadorAvall,calcularHeuristica(EUCLIDEA,preoperadorAvall,destiViajante)); //Crear punto con H(n)
 
-                colaCerrada.afegeix(actual);
+        origen = destiViajante;
+        camiViajante4 = CercaEnProfunditat(origen,desti);
 
-                //Se puede añadir a la lista abierta,si no hay pared y no es un estado repetido (esté en colaAbierta o colaCerrada)
-                if (laberint.pucAnar(actual.x,actual.y, laberint.DRETA)&&(!colaCerrada.cerca(operadorDetra)) ){
-                    listaAbierta.add(operadorDetra);
-                }
-                if (laberint.pucAnar(actual.x,actual.y, laberint.ESQUERRA)&&(!colaCerrada.cerca(operadorEsquerra))                ){
-                    listaAbierta.add(operadorEsquerra);
-                }
-                if (laberint.pucAnar(actual.x,actual.y,laberint.AMUNT)&&(!colaCerrada.cerca(operadorAmunt))){
-                    listaAbierta.add(operadorAmunt);
-                }
-                if (laberint.pucAnar(actual.x,actual.y,laberint.AVALL)&&(!colaCerrada.cerca(operadorAvall))){
-                    listaAbierta.add(operadorAvall);
-                }
-                ordenarLista(listaAbierta);
+
+        return fusionarCaminos(camiViajante1,camiViajante2,camiViajante3,camiViajante4,camiSalida);
+    }
+
+    private Cami fusionarCaminos (Cami c1,Cami c2, Cami c3, Cami c4, Cami salida){
+        int j = 0;
+        Cami caminoCompleto = new Cami(files*columnes);
+        //Recorremos el camino al primer bicho mas cercano
+        for( int i = c1.longitud - 1; i>0;i--){
+            caminoCompleto.cami[j]=c1.cami[i];
+            caminoCompleto.longitud = j + 1;
+        }
+        //Recorremos el camino al segundo bicho mas cercano
+        for(int i = c1.longitud - 1; i>0;i--){
+            caminoCompleto.afegeix(c2.cami[i]);
+        }
+        //Recorremos el camino al tercer bicho mas cercano
+        for(int i = 0; i<c3.longitud - 2;i++){
+            caminoCompleto.afegeix(c3.cami[j]);
+            j++;
+        }
+        //Recorremos el camino al cuarto bicho mas cercano
+        for(int i = 0; i<c4.longitud - 2;i++){
+            caminoCompleto.afegeix(c4.cami[j]);
+            j++;
         }
 
-
-
-
-        //Buscar el camino más corto una vez hemos encontrado la meta(Backtracking hasta el origen)
-        while (!origen.equals(actual)){
-            camiTrobat.afegeix(actual);
-            actual = (Punt2) actual.previ;
+        //Recorremos el camino, desde el ultimo bicho a la salida
+        for(int i = 0; i<salida.longitud - 1;i++){
+            caminoCompleto.afegeix(salida.cami[j]);
+            j++;
         }
-        camiTrobat.afegeix(actual);
-
-
-
-        return camiTrobat;
+        return caminoCompleto;
     }
 
     private double calcularHeuristica(int tipus, Punt actual, Punt destino){
