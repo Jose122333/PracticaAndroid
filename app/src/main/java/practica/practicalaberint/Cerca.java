@@ -187,12 +187,10 @@ public class Cerca {
     public Cami CercaAmbHeurística(Punt origen, Punt desti, int tipus) {   // Tipus pot ser MANHATTAN o EUCLIDIA
         int i;
         Cami camiTrobat = new Cami(files * columnes);
-        if(tipus==EUCLIDEA) laberint.setNodes(0);
-
+        laberint.setNodes(0);
         ArrayList<Punt2> listaAbierta = new ArrayList<>();
 
         Punt2 actual = new Punt2(origen, calcularHeuristica(tipus, origen, desti));
-        System.out.println("El valor de H es: " + String.valueOf(actual.heuristica));
         Punt preoperadorDetra, preoperadorEsquerra, preoperadorAmunt, preoperadorAvall;
         Punt2 operadorDetra, operadorEsquerra, operadorAmunt, operadorAvall;
 
@@ -215,13 +213,13 @@ public class Cerca {
                 System.out.println("Meta encontrada");
             } else { //Si no es el estado meta, aplicar operadores(DRETA,ESQUERRA,AMUNT, AVALL) en ese orden
                 //Generar sucesores de actual
-                preoperadorDetra = operadores(actual,1); //Si vas a la derecha te has avanzado una columna
+                preoperadorDetra = operadores(actual, 1); //Si vas a la derecha te has avanzado una columna
                 operadorDetra = new Punt2(preoperadorDetra, calcularHeuristica(tipus, preoperadorDetra, desti)); //Crear punto con H(n)
-                preoperadorEsquerra = operadores(actual,2); //Si vas hacía la izquierda has retrocedido una columna
+                preoperadorEsquerra = operadores(actual, 2); //Si vas hacía la izquierda has retrocedido una columna
                 operadorEsquerra = new Punt2(preoperadorEsquerra, calcularHeuristica(tipus, preoperadorEsquerra, desti)); //Crear punto con H(n)
-                preoperadorAmunt = operadores(actual,3); //Si vas hacía arriba has retrocedido una fila
+                preoperadorAmunt = operadores(actual, 3); //Si vas hacía arriba has retrocedido una fila
                 operadorAmunt = new Punt2(preoperadorAmunt, calcularHeuristica(tipus, preoperadorAmunt, desti)); //Crear punto con H(n)
-                preoperadorAvall = operadores(actual,4); //Si vas hacía abajo has avanzado una fila
+                preoperadorAvall = operadores(actual, 4); //Si vas hacía abajo has avanzado una fila
                 operadorAvall = new Punt2(preoperadorAvall, calcularHeuristica(tipus, preoperadorAvall, desti)); //Crear punto con H(n)
                 colaCerrada.afegeix(actual);
 
@@ -257,11 +255,12 @@ public class Cerca {
         Cami camiViajante1, camiViajante2, camiViajante3, camiViajante4, camiSalida;
 
         laberint.setNodes(0);
+        int nodesViatjant = 0;
 
         ArrayList<Punt2> listaAbierta = new ArrayList<>();
         ArrayList<Punt2> listaViajantes = new ArrayList<>();
 
-        Punt2 aux,actual = new Punt2(origen, calcularHeuristica(MANHATTAN, origen, desti));
+        Punt2 aux, actual = new Punt2(origen, calcularHeuristica(MANHATTAN, origen, desti));
         Punt destiViajante;
 
         if (!origen.equals(desti)) {
@@ -280,22 +279,30 @@ public class Cerca {
         //Cogemos el viajante más cercano
         destiViajante = (Punt) listaViajantes.remove(0);
         camiViajante1 = CercaAmbHeurística(origen, destiViajante, MANHATTAN);
+        nodesViatjant += laberint.nodes;
 
         origen = destiViajante;
         destiViajante = (Punt) listaViajantes.remove(0);
         camiViajante2 = CercaAmbHeurística(origen, destiViajante, MANHATTAN);
+        nodesViatjant += laberint.nodes;
 
         origen = destiViajante;
         destiViajante = (Punt) listaViajantes.remove(0);
         camiViajante3 = CercaAmbHeurística(origen, destiViajante, MANHATTAN);
+        nodesViatjant += laberint.nodes;
 
         origen = destiViajante;
         destiViajante = (Punt) listaViajantes.remove(0);
         camiViajante4 = CercaAmbHeurística(origen, destiViajante, MANHATTAN);
+        nodesViatjant += laberint.nodes;
+
 
         origen = destiViajante;
         camiSalida = CercaAmbHeurística(origen, desti, MANHATTAN);
+        nodesViatjant += laberint.nodes;
 
+        //Actualizamos los nodos de la búsqueda y juntamos todos los caminos
+        laberint.setNodes(nodesViatjant);
         return fusionarCaminos(camiViajante1, camiViajante2, camiViajante3, camiViajante4, camiSalida);
     }
 
@@ -346,7 +353,7 @@ public class Cerca {
             case MANHATTAN:
                 return Math.abs(actual.x - destino.x) + Math.abs(actual.y - destino.y);
             case EUCLIDEA:
-                return Math.sqrt(Math.pow(actual.x - actual.y, 2) + Math.pow(destino.x - destino.y, 2));
+                return Math.sqrt(Math.pow(actual.x - destino.x, 2) + Math.pow(actual.y - destino.y, 2));
         }
         return 0;
     }
