@@ -289,6 +289,8 @@ public class Cerca
 
         laberint.setNodes(0);
 
+        int nodesViatjant= 0;
+
         ArrayList<Punt2> listaAbierta = new ArrayList<>();
         ArrayList<Punt2> listaViajantes = new ArrayList<>();
 
@@ -313,26 +315,32 @@ public class Cerca
 
         //Cogemos el viajante más cercano
         destiViajante = (Punt)listaViajantes.remove(0);
-
         camiViajante1 = CercaAmbHeurística(origen,destiViajante,MANHATTAN);
+        nodesViatjant = laberint.nodes;
 
         origen = destiViajante;
         destiViajante = (Punt)listaViajantes.remove(0);
         camiViajante2 = CercaAmbHeurística(origen,destiViajante,MANHATTAN);
+        nodesViatjant += laberint.nodes;
+
 
         origen = destiViajante;
         destiViajante = (Punt)listaViajantes.remove(0);
         camiViajante3 = CercaAmbHeurística(origen,destiViajante,MANHATTAN);
+        nodesViatjant += laberint.nodes;
+
 
         origen = destiViajante;
         destiViajante = (Punt)listaViajantes.remove(0);
         camiViajante4 = CercaAmbHeurística(origen,destiViajante,MANHATTAN);
+        nodesViatjant += laberint.nodes;
 
         origen = destiViajante;
         camiSalida = CercaAmbHeurística(origen,desti,MANHATTAN);
+        nodesViatjant += laberint.nodes;
 
-
-
+        //Actualizamos los nodos y juntamos los caminos encontrados
+        laberint.setNodes(nodesViatjant);
         return fusionarCaminos(camiViajante1,camiViajante2,camiViajante3,camiViajante4,camiSalida);
     }
 
