@@ -21,14 +21,14 @@ import java.util.Collections;
  *                  Profunditat           Amplada          Manhattan         Euclidiana         Viatjant        *
  *  Laberint     Nodes   Llargada    Nodes   Llargada   Nodes   Llargada   Nodes   Llargada  Nodes   Llargada   *
  * **************************************************************************************************************
- *    4x4
- *    8x8
- *   15x15
- *   20x20
- *   30x30
+ *    4x4         6       6           15        4        4         4         4        4      33         26
+ *    8x8         15      15         108        11       17        13        17       13     56         45
+ *   15x15        85      50         708        18       26        21        25       21     109        93
+ *   20x20        97      78         1521       19       21        19        20       19     163        149
+ *   30x30        73      44         6218       27       28        22        22       22     302        243
  *
  * Comentari sobre els resultats obtinguts:
- *
+ * Para el mismo laberinto siempre se han lanzado el bicho desde el mismo sitio(sobre el centro del mapa más o menos) para cada tipo de búsqueda.
  *
  *
  *
